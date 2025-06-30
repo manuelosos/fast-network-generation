@@ -1,5 +1,8 @@
 using Test
-include("../fastnetworkgeneration/networkDatatypes.jl")
+using LinearAlgebra
+
+include("../fastnetworkgeneration/networkGeneration.jl")
+using .UniformRandomNetworks
 using .NetworkDataTypes
 
 
@@ -23,4 +26,44 @@ using .NetworkDataTypes
          
     end
 
+end
+
+
+@testset "Graph Generation" begin
+
+    @testset "Geometric Algorithm" begin
+
+        @testset "Type Correctness" begin
+        n_nodes = 10
+        edge_probability = 0.5
+
+        test_network = generate_uniform_random_graph_geometric(n_nodes, edge_probability)
+
+        @test typeof(test_network) == AdjacencyMatrix
+
+        test_network = generate_uniform_random_graph_geometric(n_nodes, edge_probability, network_dtype=NeighborList)
+
+        @test typeof(test_network) == NeighborList
+        end
+
+
+        @testset "Value Correctness" begin
+        
+        n_nodes = 10
+        edge_probability = 0.5
+
+        test_network = generate_uniform_random_graph_geometric(n_nodes, edge_probability)
+        result = begin
+            result = trues((n_nodes, n_nodes))
+            result[diagind(result)] .= 0
+            result
+        end
+
+
+        @test test_network.adjacency_matrix == result skip=true
+        
+
+
+        end 
+    end
 end

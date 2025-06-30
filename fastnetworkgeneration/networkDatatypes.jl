@@ -1,8 +1,11 @@
 module NetworkDataTypes
 
 
-export SimpleNetwork, AdjacencyMatrix, NeighborList, infer_space_optimal_network_data_type, insert_edge!, delete_edge!
-
+export SimpleNetwork, AdjacencyMatrix, NeighborList
+export number_of_nodes
+export insert_edge!, delete_edge!
+export is_isolated
+export infer_space_optimal_network_data_type, to_hdf5
 
 abstract type SimpleNetwork end
 
@@ -10,6 +13,7 @@ abstract type SimpleNetwork end
 struct AdjacencyMatrix <: SimpleNetwork
     adjacency_matrix::BitMatrix
 end
+
 
 
 function AdjacencyMatrix(n_nodes::Integer)
@@ -34,6 +38,27 @@ function delete_edge!(adj_mat::AdjacencyMatrix, indices::Tuple{Integer, Integer}
 end
 
 
+function number_of_nodes(adj_mat::AdjacencyMatrix)
+    return size(adj_mat.adjacency_matrix)[1]
+end
+
+
+function is_isolated(adj_mat::AdjacencyMatrix, node_index::Integer)
+    if sum(adj_mat.adjacency_matrix[node_index,:]) == 0
+        return true
+    end
+    return false
+end
+
+
+function to_hdf5(adj_mat::AdjacencyMatrix)
+    return Dict(
+        "adjacency_matrix" => convert(Array{Bool}, adj_mat.adjacency_matrix)
+    )
+
+end
+
+
 struct NeighborList <: SimpleNetwork
     neighbor_list::AbstractVector{Vector{Integer}}
 end
@@ -45,12 +70,6 @@ function NeighborList(n_nodes::Integer)
 end
 
 
-"""
-    edge_exists(nlist::NeighborList, indices::Tuple{Integer, Integer})
-
-    Checks if an edge is present in the network.
-    Method for Neighborlist assumes that if edge is listed as neighbor
-"""
 function edge_exists(nlist::NeighborList, indices::Tuple{Integer, Integer})
 
     if length(nlist.neighbor_list[indices[1]]) < length(nlist.neighbor_list[indices[2]])
@@ -65,9 +84,6 @@ function edge_exists(nlist::NeighborList, indices::Tuple{Integer, Integer})
 end
 
 
-"""
-insert_edge!(nlist::Neighborlist, indices::Tuple{Integer, Integer}, check_if_exists::Bool=true)
-"""
 function insert_edge!(
     nlist::NeighborList,
     indices::Tuple{Integer, Integer};
@@ -89,6 +105,51 @@ function delete_edge!(nlist::NeighborList, indices::Tuple{Integer, Integer})
 end
 
 
+function number_of_nodes(nlist::NeighborList)
+    return size(nlist.neighbor_list)[1]
+end
+
+
+function is_isolated(nlist::NeighborList, node_index::Integer)
+    if size(nlist.neighbor_list[node_index])[1] == 0
+        return true
+    end
+    return false
+end
+
+
+"""
+    to_hdf5(nlist::NeighborList)
+
+Converts the neighborlist to an adjacency matrix in CSR format which is suitable for hdf5 saving.
+"""
+function to_hdf5(nlist::NeighborList)
+    
+    n_elements = sum([size(x)[1] for x in nlist.neighbor_list])
+
+    col_ptr = Vector{UInt64}(undef, n_elements)
+    row_ptr = Vector{UInt64}(undef, size(nlist.neighbor_list)[1])
+
+    col_index = 1
+
+    n_nodes = size(nlist.neighbor_list)[1]
+
+    for row_index = 1 : n_nodes
+        
+        row_ptr[row_index] = col_index
+        neighbors = nlist.neighbor_list[row_index]
+        n_neighbors = size(neighbors)[1]
+        
+        col_ptr[col_index: col_index + n_neighbors-1] = copy(neighbors)
+        col_index += n_neighbors
+    end
+
+
+    return Dict("adjacency_matrix_col_ptr" => col_ptr, "adjacecny_matrix_row_ptr" => row_ptr)
+    
+end
+
+
 """
     infer_space_optimal_network_data_type(n_nodes, n_expected_edges, use_bitmatrix=true)
 
@@ -97,7 +158,7 @@ based on the number of nodes and the expected number of edges.
 
 Returns the matching datatype.
 
-If use_bitmatrix is true, the adjacency matrix will be assumed to be a bitmatrix instead of an UInt8matrix.
+If `use_bitmatrix=true`, the adjacency matrix will be assumed to be a bitmatrix instead of an UInt8matrix.
 Note that internally the adjacency matrix will always be a Bitmatrix. 
 This option is only relevant if the network will be saved on disk since some dataformats do not support BitArrays.
 """
