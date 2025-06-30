@@ -27,6 +27,18 @@ using Distributed
 end
 
 
+function connect_isolates!(
+    adjacency_matrix
+)
+    for i=1:size(adjacency_matrix)[1]
+        if count(!=(false), adjacency_matrix[i]) == 0
+            tmp = rand(1: size(adjacency_matrix)[1])
+            adjacency_matrix[i, tmp] = true
+            adjacency_matrix[tmp, i] = true
+        end
+    end
+    
+end
 
 
 function generate_graphs(
@@ -66,21 +78,21 @@ end
 
 if abspath(PROGRAM_FILE) == @__FILE__
 
-
-    
     arg_settings = ArgParseSettings()
     @add_arg_table arg_settings begin
+        "save_path"
+            help = "Save path for the network"
+            arg_type=String
         "--test"
             help = "Run with test values and save results in current working directory."
             action = :store_true
     end
+    println("started")
 
     parsed_args = parse_args(arg_settings)
 
     test = parsed_args["test"]
 
-    path_data = JSON.parsefile("../code/paths.json")
-    data_path = path_data["data_path"]
 
     save_path_results = test ? "" : path_data["save_path_networks"]
     n_nodes_list = test ? [10, 100, 1000] : [10, 100, 1000, 10000, 100000, 1000000]

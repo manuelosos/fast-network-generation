@@ -1,6 +1,9 @@
 using Distributions
-using Plots
 
+
+module UniformRandomGraphSampling
+
+export generate_uniform_random_graph_geometric, generate_uniform_random_graph
 """
 Generates a G(n,p) random graph with the PreZER algorithm desribed in https://doi.org/10.1145/1951365.1951406.
 Has some kind of bias for certain edges. Number of edges is slightly higher due to that bias.
@@ -71,8 +74,12 @@ end
 
 
 """
-Generates a G(n,p) random graph with the geometric algorithm as described in DOI: 10.1103/PhysRevE.71.036113
-The graph is represented as an adjacency matrix saved as an bitarray.
+    generate_uniform_random_graph_geometric(n_nodes, edge_probability, flipped=False)
+
+Sequentially generates a G(n,p) random graph with the geometric algorithm as described in DOI: 10.1103/PhysRevE.71.036113
+
+Set flipped=true to execute the algorithm for the inverse of the graph.
+
 """
 function generate_uniform_random_graph_geometric(
     n_nodes::Int,
@@ -117,18 +124,6 @@ function generate_uniform_random_graph(
 end
 
 
-function connect_isolates!(
-    adjacency_matrix
-)
-    for i=1:size(adjacency_matrix)[1]
-        if count(!=(false), adjacency_matrix[i]) == 0
-            tmp = rand(1: size(adjacency_matrix)[1])
-            adjacency_matrix[i, tmp] = true
-            adjacency_matrix[tmp, i] = true
-        end
-    end
-    
-end
 
 
 function main2()
@@ -174,4 +169,4 @@ function main()
 
 end
 
-main()
+end
