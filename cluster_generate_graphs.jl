@@ -2,7 +2,7 @@ using ArgParse
 using JSON
 using Distributed
 
-include("erdos_renyi_generation.jl")
+@everywhere include("erdos_renyi_generation.jl")
 
 @everywhere using .Testsuite
 
