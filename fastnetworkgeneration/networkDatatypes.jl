@@ -4,11 +4,14 @@ module NetworkDataTypes
 export SimpleNetwork, AdjacencyMatrix, NeighborList
 export number_of_nodes
 export insert_edge!, delete_edge!
-export is_isolated
+export is_isolated, connect_isolates!
 export infer_space_optimal_network_data_type, to_hdf5
+
 
 abstract type SimpleNetwork end
 
+
+include("networkfunctions.jl")
 
 struct AdjacencyMatrix <: SimpleNetwork
     adjacency_matrix::BitMatrix
@@ -127,25 +130,29 @@ function to_hdf5(nlist::NeighborList)
     
     n_elements = sum([size(x)[1] for x in nlist.neighbor_list])
 
-    col_ptr = Vector{UInt64}(undef, n_elements)
-    row_ptr = Vector{UInt64}(undef, size(nlist.neighbor_list)[1])
+    col_ptr = Vector{Int64}(undef, n_elements)
+    row_ptr = Vector{Int64}(undef, size(nlist.neighbor_list)[1]+1)
 
-    col_index = 1
+    col_ptr_index = 1
 
     n_nodes = size(nlist.neighbor_list)[1]
 
     for row_index = 1 : n_nodes
         
-        row_ptr[row_index] = col_index
+        row_ptr[row_index] = col_ptr_index
         neighbors = nlist.neighbor_list[row_index]
         n_neighbors = size(neighbors)[1]
         
-        col_ptr[col_index: col_index + n_neighbors-1] = copy(neighbors)
-        col_index += n_neighbors
+        col_ptr[col_ptr_index: col_ptr_index + n_neighbors-1] = copy(neighbors)
+        col_ptr_index += n_neighbors
     end
+    row_ptr[end] = col_ptr_index
 
+    # Converte to zero based index
+    col_ptr .-= 1
+    row_ptr .-= 1
 
-    return Dict("adjacency_matrix_col_ptr" => col_ptr, "adjacecny_matrix_row_ptr" => row_ptr)
+    return Dict("adjacency_matrix_col_ptr" => col_ptr, "adjacency_matrix_row_ptr" => row_ptr)
     
 end
 

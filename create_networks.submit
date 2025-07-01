@@ -1,0 +1,19 @@
+#!/bin/bash
+#SBATCH --job-name=network_creation
+#SBATCH --time=24:00:00
+#SBATCH --mail-type=BEGIN,FAIL,END
+#SBATCH --mail-user=manuel.urban@uni-bayreuth.de
+#SBATCH --chdir=/workdir/bt310056/SPoNetResearch/juliacode/
+#SBATCH --error=/workdir/bt310056/logs/network_creation_%x_%j.err
+#SBATCH --output=/workdir/bt310056/logs/network_creation_%x_%j.out
+
+
+#SBATCH --ntasks=1
+#SBATCH --nodes=2
+#SBATCH --hint=nomultithread
+#SBATCH --exclusive
+
+
+module load julia
+julia -p 45 --project=. cluster_generate_graphs.jl
+#&a3,h7Ldk$g!

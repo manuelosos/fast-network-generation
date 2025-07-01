@@ -3,11 +3,9 @@ module Testsuite
 
 using HDF5
 
-include("fastnetworkgeneration/networkfunctions.jl")
+include("fastnetworkgeneration/uniformRandomNetworks.jl")
 
-using .NetworkFunctions
 using .UniformRandomNetworks
-using .NetworkDataTypes
 
 export main, generate_connected_erdos_renyi_network
 
@@ -28,7 +26,6 @@ function save_erdos_renyi_network(
     er_network::ErdosRenyiNetwork,
     path
 )
-
     if !isdir(path)
         throw(error("Path does not exist or is not a directory"))
     end
@@ -63,7 +60,7 @@ end
 
 function generate_connected_erdos_renyi_network(n_nodes, edge_probability, edge_probability_name, path)
 
-    res = generate_uniform_random_graph_geometric(n_nodes, edge_probability)
+    res = generate_uniform_random_graph_geometric(n_nodes, edge_probability, network_dtype=NeighborList)
     connect_isolates!(res)
 
     er_res = ErdosRenyiNetwork(res, n_nodes, edge_probability, edge_probability_name)

@@ -1,13 +1,3 @@
-module NetworkFunctions
-
-include("networkGeneration.jl")
-using .UniformRandomNetworks
-using .NetworkDataTypes
-
-export NetworkDataTypes
-export connect_isolates!
-export UniformRandomNetworks
-
 
 function connect_isolates!(network::SimpleNetwork)
     n_nodes = number_of_nodes(network)
@@ -18,6 +8,4 @@ function connect_isolates!(network::SimpleNetwork)
     end
 end
 
-
-end
 
