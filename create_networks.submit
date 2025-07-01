@@ -15,5 +15,4 @@
 
 
 module load julia
-julia -p 45 --project=. cluster_generate_graphs.jl
-#&a3,h7Ldk$g!
+julia -p 45 --project=. cluster_generate_graphs.jl /workdir/bt310056/data/networks/
