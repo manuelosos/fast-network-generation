@@ -114,6 +114,7 @@ function compute_uniform_random_graph_PZER(n_nodes, edge_probability)
 
     adj_mat = falses(n_nodes, n_nodes)
 
+    local gpu_task, cpu_task
     @sync begin 
         gpu_task = Base.Threads.@spawn gpu_compute_loop(buffer, n_nodes, edge_probability, chunksize)
         cpu_task = Base.Threads.@spawn cpu_compute_loop!(adj_mat, buffer, n_nodes)
