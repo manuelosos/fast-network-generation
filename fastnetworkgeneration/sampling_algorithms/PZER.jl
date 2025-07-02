@@ -125,8 +125,8 @@ function compute_uniform_random_graph_PZER(n_nodes, edge_probability)
     gpu_counts, gpu_exec_time = fetch(gpu_task)
     cpu_counts, cpu_exec_time = fetch(cpu_task)
 
-    println("GPU executions: $(gpu_count), average GPU execution time $(gpu_exec_time/gpu_count/1_000_000)")
-    println("CPU executions: $(cpu_count), average CPU execution time $(cpu_exec_time/cpu_count/1_000_000)")
+    println("GPU executions: $(gpu_count), average GPU execution time $(gpu_exec_time/gpu_counts/1_000_000)")
+    println("CPU executions: $(cpu_count), average CPU execution time $(cpu_exec_time/cpu_counts/1_000_000)")
 
     return adj_mat
 end
