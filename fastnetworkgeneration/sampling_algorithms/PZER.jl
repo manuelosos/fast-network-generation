@@ -115,12 +115,15 @@ function compute_uniform_random_graph_PZER(n_nodes, edge_probability)
     adj_mat = falses(n_nodes, n_nodes)
 
     @sync begin 
-        gpu_task = Base.Threads.@spawn gpu_count, gpu_exec_time = gpu_compute_loop(buffer, n_nodes, edge_probability, chunksize)
-        cpu_task = Base.Threads.@spawn cpu_count, cpu_exec_time = cpu_compute_loop!(adj_mat, buffer, n_nodes)
+        gpu_task = Base.Threads.@spawn gpu_compute_loop(buffer, n_nodes, edge_probability, chunksize)
+        cpu_task = Base.Threads.@spawn cpu_compute_loop!(adj_mat, buffer, n_nodes)
     end
 
     @info "GPU and CPU loop finished"
     
+    gpu_counts, gpu_exec_time = fetch(gpu_task)
+    cpu_counts, cpu_exec_time = fetch(cpu_task)
+
     println("GPU executions: $(gpu_count), average GPU execution time $(gpu_exec_time/gpu_count/1_000_000)")
     println("CPU executions: $(cpu_count), average CPU execution time $(cpu_exec_time/cpu_count/1_000_000)")
 
