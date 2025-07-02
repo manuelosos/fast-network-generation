@@ -33,6 +33,8 @@ function gpu_compute_loop(
 )
     @info "Starting GPU loop"
     current_adj_mat_index = 0
+    execution_times = 0
+    execution_counts = 0
     while true
 
         start_time = time()
@@ -46,7 +48,8 @@ function gpu_compute_loop(
         put!(buffer, edge_list_h)
         
         @info "GPU execution time for edge list $((time()-start_time)/1_000_000)"
-
+        execution_times  += time()-start_time
+        execution_counts += 1
         if edge_list_h[end] > n_nodes^2/2
             @debug "Finishing GPU loop"
             close(buffer)
@@ -54,6 +57,7 @@ function gpu_compute_loop(
             break
         end
     end
+    return 
 end
 
 
@@ -120,8 +124,8 @@ function compute_uniform_random_graph_PZER(n_nodes, edge_probability)
         cpu_task = Base.Threads.@spawn cpu_compute_loop!(adj_mat, buffer, n_nodes)
     end
 
-    (gpu_counts, gpu_exec_time) = fetch(gpu_task)
-    (cpu_counts, cpu_exec_time) = fetch(cpu_task)
+    gpu_counts, gpu_exec_time = fetch(gpu_task)
+    cpu_counts, cpu_exec_time = fetch(cpu_task)
 
     @info "GPU and CPU loop finished"
     println("GPU executions: $(gpu_count), average GPU execution time $(gpu_exec_time/gpu_counts/1_000_000)")
