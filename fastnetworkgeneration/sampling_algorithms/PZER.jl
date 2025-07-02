@@ -1,4 +1,3 @@
-using Plots
 using CUDA
 #using BenchmarkTools
 using Statistics

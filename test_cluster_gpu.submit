@@ -1,21 +1,20 @@
 #!/bin/bash
-#SBATCH --job-name=network_creation
-#SBATCH --time=24:00:00
+#SBATCH --job-name=GPU_test
+#SBATCH --time=00:05:00
 #SBATCH --mail-type=BEGIN,FAIL,END
 #SBATCH --mail-user=manuel.urban@uni-bayreuth.de
 #SBATCH --chdir=/workdir/bt310056/fast-network-generation/
-#SBATCH --error=/workdir/bt310056/logs/network_creation_%x_%j.err
-#SBATCH --output=/workdir/bt310056/logs/network_creation_%x_%j.out
+#SBATCH --error=/workdir/bt310056/gpu_test/%x_%j.err
+#SBATCH --output=/workdir/bt310056/logs/gpu_test/%x_%j.out
 
 
 #SBATCH --ntasks=1
 #SBATCH --nodes=1
-#SBATCH --hint=nomultithread
-#SBATCH --exclusive
-#SBATCH --gres=gpu:L40:1
+#SBATCH --gres=gpu:l40:1
 
 
-
-
+echo "test"
 module load julia
-julia --threads = 12 --project=.  /fastnetworkgeneration/sampling_algorithms/PZER.jl
+julia --threads=12 --project=.  fastnetworkgeneration/sampling_algorithms/PZER.jl
+
+
