@@ -69,6 +69,10 @@ function cpu_compute_loop!(
     row_index_bound = 1
     col_index_bound = 0
 
+    execution_times = 0
+    execution_counts = 0
+
+
     for edge_list in buffer
         start_time = time()
         for edge_index in edge_list
@@ -88,13 +92,17 @@ function cpu_compute_loop!(
             end
         end
 
+        execution_counts += 1
+        execution_times += time() - start_time
         @info "CPU execution time for edge list: $((time()-start_time)/1_000_000)"
+
 
         if row_index >= n_nodes
             break
         end
     end
     @info "Finishing CPU loop"
+    return execution_counts, execution_times
 end
 
 
@@ -107,11 +115,14 @@ function compute_uniform_random_graph_PZER(n_nodes, edge_probability)
     adj_mat = falses(n_nodes, n_nodes)
 
     @sync begin 
-        gpu_task = Base.Threads.@spawn gpu_compute_loop(buffer, n_nodes, edge_probability, chunksize)
-        cpu_task = Base.Threads.@spawn cpu_compute_loop!(adj_mat, buffer, n_nodes)
+        gpu_task = Base.Threads.@spawn gpu_count, gpu_exec_time = gpu_compute_loop(buffer, n_nodes, edge_probability, chunksize)
+        cpu_task = Base.Threads.@spawn cpu_count, cpu_exec_time = cpu_compute_loop!(adj_mat, buffer, n_nodes)
     end
 
     @info "GPU and CPU loop finished"
+    
+    println("GPU executions: $(gpu_count), average GPU execution time $(gpu_exec_time/gpu_count/1_000_000)")
+    println("CPU executions: $(cpu_count), average CPU execution time $(cpu_exec_time/cpu_count/1_000_000)")
 
     return adj_mat
 end
