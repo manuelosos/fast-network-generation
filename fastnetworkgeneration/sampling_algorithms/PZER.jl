@@ -53,7 +53,7 @@ function gpu_compute_loop(
         if edge_list_h[end] > n_nodes^2/2
             @debug "Finishing GPU loop"
             close(buffer)
-            return
+            return execution_counts, execution_times
             break
         end
     end
