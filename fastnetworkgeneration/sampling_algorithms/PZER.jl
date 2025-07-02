@@ -57,7 +57,7 @@ function gpu_compute_loop(
             break
         end
     end
-    return 
+    return execution_counts, execution_times
 end
 
 
