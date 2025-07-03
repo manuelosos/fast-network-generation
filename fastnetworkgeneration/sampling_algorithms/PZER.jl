@@ -18,7 +18,7 @@ function compute_edge_skips_gpu(
     rng_gen(_) = compute_single_edge_skip(edge_probability)
     skip_values = CUDA.map(rng_gen, skip_values)   
     skip_values = CUDA.accumulate(+, skip_values)
-
+    
     skip_values .+= start_index 
 
     return skip_values
@@ -35,6 +35,7 @@ function gpu_compute_loop(
     current_adj_mat_index = 0
     execution_times = 0
     execution_counts = 0
+
     while true
 
         start_time = time()
@@ -134,7 +135,6 @@ function compute_uniform_random_graph_PZER(n_nodes, edge_probability)
     return adj_mat
 end
 
-#display_device_attributes()
 
 function main()
     n_nodes = 50000
