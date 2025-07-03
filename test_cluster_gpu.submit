@@ -5,7 +5,7 @@
 #SBATCH --mail-user=manuel.urban@uni-bayreuth.de
 #SBATCH --chdir=/workdir/bt310056/fast-network-generation/
 #SBATCH --error=/workdir/bt310056/gpu_test/%x_%j.err
-#SBATCH --output=/workdir/bt310056/logs/gpu_test/%x_%j.out
+#SBATCH --output=/workdir/bt310056/gpu_test/%x_%j.out
 
 
 #SBATCH --ntasks=1
@@ -13,7 +13,6 @@
 #SBATCH --gres=gpu:l40:1
 
 
-echo "test"
 module load julia
 julia --threads=12 --project=.  fastnetworkgeneration/sampling_algorithms/PZER.jl
 
