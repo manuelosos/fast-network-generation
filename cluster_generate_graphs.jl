@@ -47,7 +47,7 @@ if abspath(PROGRAM_FILE) == @__FILE__
     test = parsed_args["test"]
     save_path = parsed_args["save_path"]
 
-    n_nodes_list = test ? [5, 10, 50] : [10, 50, 100, 500, 1_000, 5_000, 10_000, 50_000, 100_000, 500_000]
+    n_nodes_list = test ? [5, 10, 50] : [10, 25, 50, 75, 100, 250, 500, 750, 1_000, 2_500, 5_000, 7_500, 10_000, 25_000, 50_000, 75_000]
 
 
     edge_probs = log.(n_nodes_list) ./ n_nodes_list        

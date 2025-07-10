@@ -39,7 +39,8 @@ function save_erdos_renyi_network(
         "edge_probability" => er_network.edge_probability,
         "edge_probability_name" => er_network.edge_probability_name,
         "network_model" => "erdos renyi",
-        "n_nodes" => er_network.n_nodes
+        "n_nodes" => er_network.n_nodes,
+        "network_name" => network_name
     )
     
     
