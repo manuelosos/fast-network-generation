@@ -10,7 +10,7 @@ include("networkDatatypes.jl")
 using .NetworkDataTypes
 
 export generate_uniform_random_graph_geometric
-export sample_uniform_random_graph_PZER
+export generate_uniform_random_graph_PZER
 export connect_isolates!
 export NeighborList, AdjacencyMatrix, SimpleNetwork
 export to_hdf5

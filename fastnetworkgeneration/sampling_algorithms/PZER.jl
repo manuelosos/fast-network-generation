@@ -34,6 +34,8 @@ function gpu_compute_loop(
     execution_times = 0
     execution_counts = 0
 
+    max_edges = n_nodes*(n_nodes-1)/2
+
     while true
 
         start_time = time()
@@ -43,13 +45,15 @@ function gpu_compute_loop(
 
         current_adj_mat_index = convert(Int, edge_list_h[end])
 
-
-        put!(buffer, edge_list_h)
+        @debug "GPU creation time for edge list $((time()-start_time)/1_000_000)"
         
-        @debug "GPU execution time for edge list $((time()-start_time)/1_000_000)"
+        memory_start_time = time()
+        put!(buffer, edge_list_h)
+        @debug "GPU execution time for memory swapping $((time()-memory_start_time)/1_000_000)"
+        
         execution_times  += time() - start_time
         execution_counts += 1
-        if edge_list_h[end] > n_nodes^2/2
+        if edge_list_h[end] > max_edges 
             @debug "Finishing GPU loop"
             close(buffer)
             return execution_counts, execution_times
@@ -72,7 +76,7 @@ function cpu_compute_loop!(
     row_index_bound = 1
     col_index_bound = 0
 
-    max_n_edges = n_nodes * (n_nodes-1)/2
+    max_n_edges = n_nodes * (n_nodes-1) / 2
     
     execution_times = 0
     execution_counts = 0
@@ -101,8 +105,7 @@ function cpu_compute_loop!(
 
         execution_counts += 1
         execution_times += time() - start_time
-        @debug "CPU execution time for edge list: $((time()-start_time)/1_000_000)"
-
+        @debug "CPU decoding time for edge list: $((time()-start_time)/1_000_000)"
 
         if row_index >= n_nodes
             break
@@ -135,7 +138,7 @@ function sample_uniform_random_graph_PZER!(
     cpu_counts, cpu_exec_time = fetch(cpu_task)
 
     if verbose
-        @info "GPU and CPU loop finished"
+        @debug "GPU and CPU loop finished"
     end
 
     average_gpu_exec_time = gpu_exec_time/gpu_counts
@@ -152,12 +155,13 @@ function sample_uniform_random_graph_PZER!(
         println("GPU executions: $(gpu_counts), average GPU execution time $(average_gpu_exec_time/1_000_000)")
         println("CPU executions: $(cpu_counts), average CPU execution time $(average_cpu_exec_time/1_000_000)")
         println("Factor: GPU/CPU $(average_gpu_exec_time/average_cpu_exec_time)")
+        println("")
     end
 
 end
 
 
-function sample_uniform_random_graph_PZER(
+function generate_uniform_random_graph_PZER(
     n_nodes::Integer, 
     edge_probability::Real;
     network_dtype::typeof(SimpleNetwork)=infer_space_optimal_network_data_type(n_nodes, round(UInt64, edge_probability*n_nodes*(n_nodes-1)/2)),

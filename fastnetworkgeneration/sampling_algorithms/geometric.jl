@@ -49,7 +49,7 @@ end
 function generate_uniform_random_graph_geometric(
     n_nodes::Integer,
     edge_probability::Real;
-    network_dtype::typeof(SimpleNetwork) = infer_space_optimal_network_data_type(n_nodes, round(UInt64, edge_probability*n_nodes^2))
+    network_dtype::typeof(SimpleNetwork) = infer_space_optimal_network_data_type(n_nodes, round(UInt64, edge_probability*n_nodes*(n_nodes-1)/2))
 )
 
     compute_inverse = false
